@@ -1,5 +1,26 @@
 const API = "http://localhost:3000";
 
+/* =========================
+   AUTH CHECK
+========================= */
+const userId = localStorage.getItem("userId");
+if (!userId) {
+  window.location.href = "login.html";
+}
+const logoutBtn = document.getElementById("logoutBtn");
+
+logoutBtn.addEventListener("click", () => {
+  localStorage.removeItem("userId");
+  window.location.href = "login.html";
+});
+
+
+/* =========================
+   UI ELEMENTS
+========================= */
+const usernameDisplay = document.getElementById("usernameDisplay");
+usernameDisplay.innerText = localStorage.getItem("username") || "User";
+
 const totalCounter = document.querySelector(".total-counter");
 const completedCounter = document.querySelector(".completed-counter");
 const pendingCounter = document.querySelector(".pending-counter");
@@ -12,19 +33,21 @@ const dateInput = document.querySelector(".schedule-date");
 const addBtn = document.querySelector(".add-task-button");
 const listBody = document.querySelector(".todos-list-body");
 
-// Modal elements
-const taskModal = document.getElementById('taskModal');
-const modalTitle = document.getElementById('modalTitle');
-const modalDescription = document.getElementById('modalDescription');
-const modalDate = document.getElementById('modalDate');
-const closeModal = document.getElementById('closeModal');
+/* Modal elements */
+const taskModal = document.getElementById("taskModal");
+const modalTitle = document.getElementById("modalTitle");
+const modalDescription = document.getElementById("modalDescription");
+const modalDate = document.getElementById("modalDate");
+const closeModal = document.getElementById("closeModal");
 
-let tasks = []; // store tasks globally to access modal
+let tasks = [];
 
-/* Load Tasks */
+/* =========================
+   LOAD TASKS (USER-WISE)
+========================= */
 async function loadTasks() {
-  const res = await fetch(`${API}/tasks`);
-  tasks = await res.json(); // store globally
+  const res = await fetch(`${API}/tasks/${userId}`);
+  tasks = await res.json();
 
   listBody.innerHTML = "";
 
@@ -49,20 +72,19 @@ async function loadTasks() {
     `;
   });
 
-  /* UPDATE COUNTERS */
+  /* Counters */
   totalCounter.innerText = total;
   completedCounter.innerText = completed;
   pendingCounter.innerText = pending;
 
-  let percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+  const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
   percentageDisplay.innerText = percentage + "%";
   progressBar.style.width = percentage + "%";
 
-  // Add click listeners for modal
-  document.querySelectorAll('.task-row').forEach(row => {
-    row.addEventListener('click', (e) => {
-      // Ignore clicks on buttons inside row
-      if(e.target.tagName === "BUTTON") return;
+  /* Modal click handlers */
+  document.querySelectorAll(".task-row").forEach(row => {
+    row.addEventListener("click", e => {
+      if (e.target.tagName === "BUTTON") return;
 
       const taskId = row.dataset.id;
       const task = tasks.find(t => t.id == taskId);
@@ -71,27 +93,36 @@ async function loadTasks() {
       modalDescription.innerText = task.description || "No description";
       modalDate.innerText = task.task_date ? `Due: ${task.task_date}` : "";
 
-      taskModal.classList.remove('hidden');
-      taskModal.classList.add('flex');
+      taskModal.classList.remove("hidden");
+      taskModal.classList.add("flex");
     });
   });
 }
 
-/* Add Task */
+/* =========================
+   ADD TASK
+========================= */
 addBtn.addEventListener("click", async () => {
   const title = titleInput.value.trim();
   const description = descriptionInput.value.trim();
   const task_date = dateInput.value;
 
-  if (!title) return alert("Enter task title");
+  if (!title) {
+    alert("Enter task title");
+    return;
+  }
 
   await fetch(`${API}/tasks`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title, description, task_date })
+    body: JSON.stringify({
+      title,
+      description,
+      task_date,
+      userId
+    })
   });
 
-  // Clear inputs
   titleInput.value = "";
   descriptionInput.value = "";
   dateInput.value = "";
@@ -99,7 +130,9 @@ addBtn.addEventListener("click", async () => {
   loadTasks();
 });
 
-/* Update Status */
+/* =========================
+   UPDATE STATUS
+========================= */
 async function toggleStatus(id, status) {
   await fetch(`${API}/tasks/${id}`, {
     method: "PUT",
@@ -111,34 +144,44 @@ async function toggleStatus(id, status) {
   loadTasks();
 }
 
-/* Delete */
+/* =========================
+   DELETE TASK
+========================= */
 async function deleteTask(id) {
-  await fetch(`${API}/tasks/${id}`, { method: "DELETE" });
+  await fetch(`${API}/tasks/${id}`, {
+    method: "DELETE"
+  });
   loadTasks();
 }
 
-/* Close Modal */
-closeModal.addEventListener('click', () => {
-  taskModal.classList.add('hidden');
-  taskModal.classList.remove('flex');
+/* =========================
+   MODAL CONTROLS
+========================= */
+closeModal.addEventListener("click", () => {
+  taskModal.classList.add("hidden");
+  taskModal.classList.remove("flex");
 });
 
-// Close modal if clicking outside modal content
-taskModal.addEventListener('click', (e) => {
-  if(e.target === taskModal){
-    taskModal.classList.add('hidden');
-    taskModal.classList.remove('flex');
+taskModal.addEventListener("click", e => {
+  if (e.target === taskModal) {
+    taskModal.classList.add("hidden");
+    taskModal.classList.remove("flex");
   }
 });
 
-loadTasks();
-// THEME SWITCHER
-const themeItems = document.querySelectorAll('.theme-item');
+/* =========================
+   THEME SWITCHER
+========================= */
+const themeItems = document.querySelectorAll(".theme-item");
 
 themeItems.forEach(item => {
-  item.addEventListener('click', () => {
-    const selectedTheme = item.getAttribute('theme');
-    document.documentElement.setAttribute('data-theme', selectedTheme);
-    console.log("Theme changed to", selectedTheme);
+  item.addEventListener("click", () => {
+    const selectedTheme = item.getAttribute("theme");
+    document.documentElement.setAttribute("data-theme", selectedTheme);
   });
 });
+
+/* =========================
+   INIT
+========================= */
+loadTasks();

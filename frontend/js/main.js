@@ -1,4 +1,4 @@
-const API = "http://localhost:3000";
+const API = "https://todo-app-xn6y.onrender.com";
 
 /* =========================
    AUTH CHECK

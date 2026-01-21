@@ -13,7 +13,7 @@ function signup() {
     return;
   }
 
-  fetch(`${API_URL}/signup`, {
+  fetch(`${API}/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, username, email, password })
@@ -33,7 +33,7 @@ function login() {
   const username = document.getElementById("login-username").value;
   const password = document.getElementById("login-password").value;
 
-  fetch(`${API_URL}/login`, {
+  fetch(`${API}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password })
@@ -43,7 +43,6 @@ function login() {
       if (data.success) {
         localStorage.setItem("userId", data.userId);
         localStorage.setItem("username", username);
-
         window.location.href = "main.html";
       } else {
         document.getElementById("login-error").innerText = "Invalid credentials";

@@ -1,80 +1,74 @@
-const express = require('express');
-const mysql = require('mysql2');
-const cors = require('cors');
-const bcrypt = require('bcrypt');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const bcrypt = require("bcrypt");
+require("dotenv").config();
+
+const User = require("./models/User");
+const Task = require("./models/Task");
+
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 /* =========================
-   DATABASE CONNECTION
+   MONGODB CONNECTION
 ========================= */
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'Bhargav@123',
-  database: 'todo_app'
-});
-
-db.connect(err => {
-  if (err) {
-    console.error('DB Error:', err);
-    return;
-  }
-  console.log('MySQL Connected');
-});
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected"))
+  .catch(err => {
+    console.error("MongoDB Error:", err);
+    process.exit(1);
+  });
 
 /* =========================
    AUTH APIs
 ========================= */
 
 /* SIGNUP */
-app.post('/signup', async (req, res) => {
-  const { name, username, email, password } = req.body;
+app.post("/signup", async (req, res) => {
+  try {
+    const { name, username, email, password } = req.body;
 
-  if (!name || !username || !email || !password) {
-    return res.json({ success: false, message: "All fields required" });
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const sql = `
-    INSERT INTO users (name, username, email, password)
-    VALUES (?, ?, ?, ?)
-  `;
-
-  db.query(sql, [name, username, email, hashedPassword], err => {
-    if (err) {
-      return res.json({ success: false, message: "User already exists" });
+    if (!name || !username || !email || !password) {
+      return res.json({ success: false, message: "All fields required" });
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await User.create({
+      name,
+      username,
+      email,
+      password: hashedPassword
+    });
+
     res.json({ success: true });
-  });
+  } catch (error) {
+    res.json({ success: false, message: "User already exists" });
+  }
 });
 
 /* LOGIN */
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
+app.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
 
-  const sql = 'SELECT * FROM users WHERE username = ?';
+    const user = await User.findOne({ username });
+    if (!user) return res.json({ success: false });
 
-  db.query(sql, [username], async (err, result) => {
-    if (err || result.length === 0) {
-      return res.json({ success: false });
-    }
-
-    const user = result[0];
     const match = await bcrypt.compare(password, user.password);
-
-    if (!match) {
-      return res.json({ success: false });
-    }
+    if (!match) return res.json({ success: false });
 
     res.json({
       success: true,
-      userId: user.id
+      userId: user._id
     });
-  });
+  } catch (error) {
+    res.json({ success: false });
+  }
 });
 
 /* =========================
@@ -82,61 +76,62 @@ app.post('/login', (req, res) => {
 ========================= */
 
 /* ADD TASK */
-app.post('/tasks', (req, res) => {
-  const { title, description, task_date, userId } = req.body;
+app.post("/tasks", async (req, res) => {
+  try {
+    const { title, description, task_date, userId } = req.body;
 
-  if (!title || !userId) {
-    return res.status(400).json({ error: 'Title and userId required' });
+    if (!title || !userId) {
+      return res.status(400).json({ error: "Title and userId required" });
+    }
+
+    const task = await Task.create({
+      title,
+      description,
+      task_date,
+      userId
+    });
+
+    res.json({ message: "Task added", taskId: task._id });
+  } catch (error) {
+    res.status(500).json(error);
   }
-
-  const sql = `
-    INSERT INTO tasks (user_id, title, description, task_date, status)
-    VALUES (?, ?, ?, ?, 'pending')
-  `;
-
-  db.query(sql, [userId, title, description || '', task_date || null], (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ message: 'Task added', taskId: result.insertId });
-  });
 });
 
 /* GET TASKS */
-app.get('/tasks/:userId', (req, res) => {
-  const { userId } = req.params;
-
-  const sql = 'SELECT * FROM tasks WHERE user_id = ?';
-
-  db.query(sql, [userId], (err, data) => {
-    if (err) return res.status(500).json(err);
-    res.json(data);
-  });
+app.get("/tasks/:userId", async (req, res) => {
+  try {
+    const tasks = await Task.find({ userId: req.params.userId });
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json(error);
+  }
 });
 
 /* UPDATE STATUS */
-app.put('/tasks/:id', (req, res) => {
-  const { status } = req.body;
+app.put("/tasks/:id", async (req, res) => {
+  try {
+    const { status } = req.body;
 
-  const sql = 'UPDATE tasks SET status = ? WHERE id = ?';
-
-  db.query(sql, [status, req.params.id], err => {
-    if (err) return res.status(500).json(err);
-    res.json({ message: 'Status updated' });
-  });
+    await Task.findByIdAndUpdate(req.params.id, { status });
+    res.json({ message: "Status updated" });
+  } catch (error) {
+    res.status(500).json(error);
+  }
 });
 
 /* DELETE TASK */
-app.delete('/tasks/:id', (req, res) => {
-  const sql = 'DELETE FROM tasks WHERE id = ?';
-
-  db.query(sql, [req.params.id], err => {
-    if (err) return res.status(500).json(err);
-    res.json({ message: 'Task deleted' });
-  });
+app.delete("/tasks/:id", async (req, res) => {
+  try {
+    await Task.findByIdAndDelete(req.params.id);
+    res.json({ message: "Task deleted" });
+  } catch (error) {
+    res.status(500).json(error);
+  }
 });
 
 /* =========================
    SERVER START
 ========================= */
 app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
+  console.log("Server running on http://localhost:3000");
 });

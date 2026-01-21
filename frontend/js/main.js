@@ -7,13 +7,12 @@ const userId = localStorage.getItem("userId");
 if (!userId) {
   window.location.href = "login.html";
 }
-const logoutBtn = document.getElementById("logoutBtn");
 
+const logoutBtn = document.getElementById("logoutBtn");
 logoutBtn.addEventListener("click", () => {
   localStorage.removeItem("userId");
   window.location.href = "login.html";
 });
-
 
 /* =========================
    UI ELEMENTS
@@ -60,13 +59,13 @@ async function loadTasks() {
     else pending++;
 
     listBody.innerHTML += `
-      <tr class="task-row cursor-pointer" data-id="${task.id}">
+      <tr class="task-row cursor-pointer" data-id="${task._id}">
         <td><strong>${task.title}</strong></td>
         <td>${task.task_date || "-"}</td>
         <td>${task.status}</td>
         <td>
-          <button onclick="toggleStatus(${task.id}, '${task.status}')">✔</button>
-          <button onclick="deleteTask(${task.id})">❌</button>
+          <button onclick="toggleStatus('${task._id}', '${task.status}')">✔</button>
+          <button onclick="deleteTask('${task._id}')">❌</button>
         </td>
       </tr>
     `;
@@ -87,7 +86,7 @@ async function loadTasks() {
       if (e.target.tagName === "BUTTON") return;
 
       const taskId = row.dataset.id;
-      const task = tasks.find(t => t.id == taskId);
+      const task = tasks.find(t => t._id === taskId);
 
       modalTitle.innerText = task.title;
       modalDescription.innerText = task.description || "No description";
@@ -133,24 +132,27 @@ addBtn.addEventListener("click", async () => {
 /* =========================
    UPDATE STATUS
 ========================= */
-async function toggleStatus(id, status) {
-  await fetch(`${API}/tasks/${id}`, {
+async function toggleStatus(taskId, currentStatus) {
+  const newStatus =
+    currentStatus === "pending" ? "completed" : "pending";
+
+  await fetch(`${API}/tasks/${taskId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      status: status === "pending" ? "completed" : "pending"
-    })
+    body: JSON.stringify({ status: newStatus })
   });
+
   loadTasks();
 }
 
 /* =========================
    DELETE TASK
 ========================= */
-async function deleteTask(id) {
-  await fetch(`${API}/tasks/${id}`, {
+async function deleteTask(taskId) {
+  await fetch(`${API}/tasks/${taskId}`, {
     method: "DELETE"
   });
+
   loadTasks();
 }
 

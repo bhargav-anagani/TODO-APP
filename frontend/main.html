@@ -1,189 +1,215 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TO-DO</title>
+  <meta name="description" content="Manage your tasks efficiently with our modern Todo dashboard." />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+  <title>TO-DO Dashboard</title>
 
   <link rel="stylesheet" href="css/style.css" />
   <link href="https://cdn.jsdelivr.net/npm/daisyui@2.18.0/dist/full.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet" />
 </head>
 
-<body>
-  <div class="container">
+<body class="p-4 md:p-8">
+  <div class="max-w-7xl mx-auto flex flex-col gap-8">
 
     <!-- NAVBAR -->
-    <nav class="flex justify-between items-start mb-6">
-      <h1 class="text-5xl font-bold"
-        style="font-family:'Times New Roman',Times,serif;color:hsl(163, 31%, 51%)">
-        Todo List
-      </h1>
-
+    <nav class="glass-card p-4 flex flex-wrap justify-between items-center animate-fade-in relative z-50">
       <div class="flex items-center gap-3">
-        <div class="flex items-center gap-2">
-          <i class="bx bx-user-circle text-2xl"></i>
-          <span id="usernameDisplay" class="text-sm font-medium"></span>
+        <div class="bg-gradient-to-br from-primary to-accent p-2 rounded-xl text-white">
+          <i class="bx bx-check-double bx-sm"></i>
+        </div>
+        <h1 class="text-3xl font-extrabold tracking-tight">
+          <span class="gradient-text">Task</span>Master
+        </h1>
+      </div>
+
+      <div class="flex items-center gap-4 mt-4 sm:mt-0">
+        <div class="flex items-center gap-3 px-4 py-2 bg-white bg-opacity-10 rounded-full">
+          <i class="bx bx-user-circle text-2xl text-primary"></i>
+          <span id="usernameDisplay" class="text-sm font-bold opacity-80"></span>
         </div>
 
-        <div class="dropdown dropdown-left">
-          <label tabindex="0" class="btn btn-sm h-8 px-2">
-            <i class="bx bxs-palette bx-sm"></i>
+        <div class="dropdown dropdown-end">
+          <label tabindex="0" class="btn btn-ghost btn-circle bg-opacity-10 bg-white">
+            <i class="bx bxs-palette text-xl"></i>
           </label>
-          <ul tabindex="0"
-            class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-            <li class="theme-item" theme="light"><a>Light</a></li>
-            <li class="theme-item" theme="dark"><a>Dark</a></li>
-            <li class="theme-item" theme="night"><a>Night</a></li>
+          <ul tabindex="0" class="dropdown-content menu p-2 shadow-2xl glass-card rounded-box w-40 mt-4 z-[9999]">
+            <li class="theme-item" theme="light"><a><i class="bx bx-sun"></i> Light</a></li>
+            <li class="theme-item" theme="dark"><a><i class="bx bx-moon"></i> Dark</a></li>
           </ul>
         </div>
 
-        <button id="logoutBtn" class="btn btn-error btn-sm h-8">Logout</button>
+        <button id="logoutBtn" class="btn btn-error btn-sm rounded-lg h-10 px-4 font-bold">
+          <i class="bx bx-log-out mr-1"></i> Logout
+        </button>
       </div>
     </nav>
 
-    <!-- SECTION 1: CREATE TASK + STATS -->
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+    <!-- SECTION 1: STATISTICS ROW (BELOW NAVBAR) -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 animate-fade-in delay-1 relative z-10">
 
-      <!-- CREATE TASK -->
-      <div class="shadow-lg rounded-lg p-4">
-        <h2 class="font-semibold mb-3">Create Task</h2>
+      <!-- PROGRESS -->
+      <div
+        class="glass-card p-6 bg-gradient-to-br from-primary to-accent text-white flex flex-col justify-between relative overflow-hidden group">
+        <div class="relative z-10">
+          <p class="text-white text-opacity-80 font-medium mb-1 uppercase tracking-wider text-xs">Progress</p>
+          <h3 class="text-4xl font-black percentage-display">0%</h3>
+        </div>
+        <div class="relative z-10 mt-4">
+          <div class="w-full bg-white bg-opacity-20 rounded-full h-2 overflow-hidden">
+            <div class="progress-bar bg-white h-full rounded-full transition-all duration-1000" style="width: 0%">
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <div class="flex flex-col gap-2">
-          <input class="input input-bordered input-secondary task-title" placeholder="Task Title..." />
-          <textarea class="input input-bordered input-secondary task-description"
-            placeholder="Task Description..."></textarea>
-          <input type="date" class="input input-bordered input-secondary schedule-date" />
-          <button class="btn btn-secondary add-task-button">
-            <i class="bx bx-plus bx-sm"></i> Add
+      <!-- TOTAL -->
+      <div class="glass-card p-6 border-b-4 border-blue-500 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-blue-500 bg-opacity-10 flex items-center justify-center">
+          <i class="bx bx-list-ul text-2xl text-blue-500"></i>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-muted uppercase">Total Tasks</p>
+          <p class="text-3xl font-black total-counter">0</p>
+        </div>
+      </div>
+
+      <!-- COMPLETED -->
+      <div class="glass-card p-6 border-b-4 border-emerald-500 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500 bg-opacity-10 flex items-center justify-center">
+          <i class="bx bx-check-circle text-2xl text-emerald-500"></i>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-muted uppercase">Completed</p>
+          <p class="text-3xl font-black completed-counter text-emerald-500">0</p>
+        </div>
+      </div>
+
+      <!-- PENDING -->
+      <div class="glass-card p-6 border-b-4 border-amber-500 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-amber-500 bg-opacity-10 flex items-center justify-center">
+          <i class="bx bx-time text-2xl text-amber-500"></i>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-muted uppercase">Pending</p>
+          <p class="text-3xl font-black pending-counter text-amber-500">0</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SECTION 2: CREATE TASK -->
+    <div class="glass-card p-6 animate-fade-in delay-2">
+      <div class="flex items-center gap-2 mb-6 text-xl font-bold">
+        <i class="bx bx-plus-circle text-secondary"></i>
+        <h2>Create New Task</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="form-control md:col-span-1">
+          <label class="label pt-0"><span class="label-text-alt font-bold opacity-60">Task Title</span></label>
+          <input class="input input-premium task-title" placeholder="What needs to be done?" />
+        </div>
+        <div class="form-control md:col-span-1">
+          <label class="label pt-0"><span class="label-text-alt font-bold opacity-60">Description
+              (Optional)</span></label>
+          <input class="input input-premium task-description" placeholder="Add some details..." />
+        </div>
+        <div class="form-control md:col-span-1 flex flex-row items-end gap-2">
+          <div class="flex-grow">
+            <label class="label pt-0"><span class="label-text-alt font-bold opacity-60">Due Date</span></label>
+            <input type="date" class="input input-premium schedule-date w-full" />
+          </div>
+          <button class="btn btn-premium px-8 add-task-button h-[48px]">
+            Add <i class="bx bx-plus ml-1"></i>
           </button>
         </div>
       </div>
+    </div>
 
-      <!-- STATISTICS -->
-      <div class="lg:col-span-3 shadow-lg rounded-lg p-4">
-        <h2 class="font-semibold mb-4">Statistics</h2>
+    <!-- SECTION 3: SEARCH + FILTER -->
+    <div class="flex flex-col md:flex-row gap-6 items-stretch animate-fade-in delay-3">
+      <div class="relative flex-grow glass-card p-2 flex items-center">
+        <i class="bx bx-search absolute left-6 text-primary text-xl"></i>
+        <input class="input bg-transparent border-none focus:outline-none w-full pl-12 h-12 search-input font-medium"
+          placeholder="Search your tasks..." />
+      </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-          <!-- TOTAL -->
-          <div class="shadow-md rounded-lg p-4 text-center bg-gray-500 text-white">
-            <p class="text-sm">Total Tasks</p>
-            <p class="text-3xl font-bold total-counter">0</p>
-          </div>
-
-          <!-- COMPLETED -->
-          <div class="shadow-md rounded-lg p-4 text-center bg-gray-500 text-white">
-            <p class="text-sm mb-2">Completed</p>
-            <div class="relative w-24 h-24 mx-auto">
-              <svg class="w-full h-full -rotate-90">
-                <circle cx="48" cy="48" r="40"
-                  stroke="#22c55e" stroke-width="8" fill="none"
-                  stroke-dasharray="125.6 251.2" />
-                <circle cx="48" cy="48" r="40"
-                  stroke="#ef4444" stroke-width="8" fill="none"
-                  stroke-dasharray="125.6 251.2"
-                  stroke-dashoffset="-125.6" />
-              </svg>
-              <span class="absolute inset-0 flex items-center justify-center completed-counter font-semibold">0</span>
-            </div>
-          </div>
-
-          <!-- PENDING -->
-          <div class="shadow-md rounded-lg p-4 text-center bg-gray-500 text-white">
-            <p class="text-sm mb-2">Pending</p>
-            <div class="relative w-24 h-24 mx-auto">
-              <svg class="w-full h-full -rotate-90">
-                <circle cx="48" cy="48" r="40"
-                  stroke="#22c55e" stroke-width="8" fill="none"
-                  stroke-dasharray="125.6 251.2" />
-                <circle cx="48" cy="48" r="40"
-                  stroke="#ef4444" stroke-width="8" fill="none"
-                  stroke-dasharray="125.6 251.2"
-                  stroke-dashoffset="-125.6" />
-              </svg>
-              <span class="absolute inset-0 flex items-center justify-center pending-counter font-semibold">0</span>
-            </div>
-          </div>
-
-          <!-- PROGRESS -->
-          <div class="shadow-md rounded-lg p-4 text-center bg-gray-500 text-white">
-            <p class="text-sm mb-2">Progress</p>
-            <div class="relative w-24 h-24 mx-auto">
-              <svg class="w-full h-full -rotate-90">
-                <circle cx="48" cy="48" r="40"
-                  stroke="#22c55e" stroke-width="8" fill="none"
-                  stroke-dasharray="125.6 251.2" />
-                <circle cx="48" cy="48" r="40"
-                  stroke="#ef4444" stroke-width="8" fill="none"
-                  stroke-dasharray="125.6 251.2"
-                  stroke-dashoffset="-125.6" />
-              </svg>
-              <span class="absolute inset-0 flex items-center justify-center percentage-display font-semibold">0%</span>
-            </div>
-          </div>
-
-        </div>
+      <div class="dropdown flex-shrink-0">
+        <label tabindex="0" class="btn glass-card border-none h-full px-8 text-lg font-bold">
+          <i class="bx bx-filter-alt mr-2 text-primary"></i> Filter
+        </label>
+        <ul tabindex="0" class="dropdown-content menu p-2 shadow-2xl glass-card rounded-box w-52 mt-2 z-[40]">
+          <li><a data-filter="all" class="font-bold"><i class="bx bx-grid-alt"></i> All Tasks</a></li>
+          <li><a data-filter="pending" class="font-bold"><i class="bx bx-loader"></i> Pending</a></li>
+          <li><a data-filter="completed" class="font-bold text-emerald-500"><i class="bx bx-check-double"></i>
+              Completed</a></li>
+        </ul>
       </div>
     </div>
 
-    <!-- SECTION 2: SEARCH + FILTER -->
-<div class="flex flex-col sm:flex-row gap-4 mb-6 items-start">
-
-  <!-- SEARCH (LEFT, LIMITED WIDTH) -->
-  <div class="shadow-lg rounded-lg p-4 relative w-full sm:w-96">
-    <input
-      class="input input-bordered w-full pl-10 search-input"
-      placeholder="Search tasks..." />
-    <i class="bx bx-search absolute left-7 top-1/2 -translate-y-1/2 text-gray-400"></i>
-  </div>
-
-  <!-- FILTER -->
-  <div class="shadow-lg rounded-lg p-4">
-    <div class="dropdown">
-      <label tabindex="0" class="btn btn-outline">
-        <i class="bx bx-filter mr-2"></i> Filter
-      </label>
-      <ul tabindex="0"
-        class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-        <li><a data-filter="all">All</a></li>
-        <li><a data-filter="pending">Pending</a></li>
-        <li><a data-filter="completed">Completed</a></li>
-      </ul>
-    </div>
-  </div>
-
-</div>
-
-    <!-- SECTION 3: TABLE -->
-    <div class="shadow-lg rounded-lg p-4 overflow-x-auto">
-      <table class="table table-zebra w-full">
-        <thead>
-          <tr>
-            <th>Task</th>
-            <th>Due Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody class="todos-list-body"></tbody>
-      </table>
+    <!-- SECTION 4: TABLE -->
+    <div class="glass-card overflow-hidden animate-fade-in delay-3 mb-8">
+      <div class="overflow-x-auto">
+        <table class="table w-full">
+          <thead>
+            <tr>
+              <th class="bg-transparent text-muted font-black border-none uppercase text-xs tracking-widest pl-8">Task
+                Details</th>
+              <th class="bg-transparent text-muted font-black border-none uppercase text-xs tracking-widest">Due Date
+              </th>
+              <th class="bg-transparent text-muted font-black border-none uppercase text-xs tracking-widest">Status</th>
+              <th
+                class="bg-transparent text-muted font-black border-none uppercase text-xs tracking-widest text-center pr-8">
+                Actions</th>
+            </tr>
+          </thead>
+          <tbody class="todos-list-body">
+            <!-- Tasks injected here -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </div>
 
   <!-- MODAL -->
   <div id="taskModal"
-    class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
-    <div class="bg-white p-6 rounded-lg w-96 shadow-xl relative">
-      <button id="closeModal" class="absolute top-2 right-2 text-2xl font-bold">&times;</button>
-      <h2 id="modalTitle" class="text-xl font-bold mb-2"></h2>
-      <p id="modalDescription"></p>
-      <p id="modalDate" class="text-gray-500 mt-2"></p>
+    class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden justify-center items-center z-50 p-4 transition-all duration-300 opacity-0">
+    <div class="glass-card w-full max-w-lg p-0 overflow-hidden transform transition-all scale-95 modal-content">
+      <div class="bg-gradient-to-r from-primary to-accent p-6 text-white flex justify-between items-center">
+        <h2 id="modalTitle" class="text-2xl font-black">Task Details</h2>
+        <button id="closeModal"
+          class="btn btn-circle btn-sm bg-white bg-opacity-20 border-none text-white hover:bg-opacity-40">
+          <i class="bx bx-x text-xl"></i>
+        </button>
+      </div>
+      <div class="p-8">
+        <div class="mb-6">
+          <p class="text-xs font-bold text-muted uppercase tracking-widest mb-2">Description</p>
+          <p id="modalDescription" class="text-lg opacity-90 leading-relaxed"></p>
+        </div>
+        <div class="flex items-center gap-4 py-4 border-t border-dashed border-opacity-10 border-white">
+          <div class="w-10 h-10 rounded-full bg-primary bg-opacity-10 flex items-center justify-center">
+            <i class="bx bx-calendar text-primary"></i>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-muted uppercase tracking-widest">Target Date</p>
+            <p id="modalDate" class="font-bold"></p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script src="js/main.js"></script>
 </body>
+
 </html>

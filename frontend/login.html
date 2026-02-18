@@ -1,36 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Secure and modern Todo list application to track your daily tasks." />
+  <meta name="robots" content="index, follow" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
   <title>Login | Todo</title>
 
   <link rel="stylesheet" href="css/style.css" />
   <link href="https://cdn.jsdelivr.net/npm/daisyui@2.18.0/dist/full.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2/dist/tailwind.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet" />
 </head>
 
-<body class="flex justify-center items-center min-h-screen">
-  <div class="card w-96 bg-base-100 shadow-xl">
-    <div class="card-body">
-      <h2 class="text-2xl font-bold text-center">Login</h2>
+<body class="flex justify-center items-center min-h-screen p-4">
+  <div class="glass-card w-full max-w-md p-8 animate-fade-in">
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-extrabold gradient-text mb-2">Welcome Back</h1>
+      <p class="text-muted text-sm font-medium">Please login to access your tasks</p>
+    </div>
 
-      <input id="login-username" type="text" placeholder="Username"
-        class="input input-bordered w-full mt-3" />
+    <div class="flex flex-col gap-5">
+      <div class="form-control">
+        <label class="label mb-1">
+          <span class="label-text font-semibold opacity-70">Username</span>
+        </label>
+        <input id="login-username" type="text" placeholder="Enter your username"
+          class="input input-bordered input-premium w-full bg-opacity-20 transition-all duration-300" />
+      </div>
 
-      <input id="login-password" type="password" placeholder="Password"
-        class="input input-bordered w-full mt-3" />
+      <div class="form-control">
+        <label class="label mb-1">
+          <span class="label-text font-semibold opacity-70">Password</span>
+        </label>
+        <input id="login-password" type="password" placeholder="••••••••"
+          class="input input-bordered input-premium w-full bg-opacity-20 transition-all duration-300" />
+      </div>
 
-      <p id="login-error" class="text-red-500 text-sm mt-2"></p>
+      <p id="login-error" class="text-red-500 text-xs font-medium text-center h-4"></p>
 
-      <button onclick="login()" class="btn btn-primary mt-4">Login</button>
+      <button onclick="login()" class="btn btn-premium mt-4 text-lg py-3 rounded-xl h-auto">
+        Sign In
+      </button>
 
-      <p class="text-center mt-3 text-sm">
-        Don’t have an account?
-        <a href="signup.html" class="text-primary font-semibold">Create Account</a>
-      </p>
+      <div class="text-center mt-6">
+        <p class="text-sm opacity-70 mb-2">Don’t have an account?</p>
+        <a href="signup.html" class="text-primary font-bold hover:underline transition-all">Create Account</a>
+      </div>
     </div>
   </div>
 
   <script src="js/auth.js"></script>
 </body>
+
 </html>

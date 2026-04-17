@@ -3,14 +3,15 @@ const API = "https://todo-app-xn6y.onrender.com";
 /* =========================
    AUTH CHECK
 ========================= */
-const userId = localStorage.getItem("userId");
-if (!userId) {
+const token = localStorage.getItem("token");
+if (!token) {
   window.location.href = "login.html";
 }
 
 const logoutBtn = document.getElementById("logoutBtn");
 logoutBtn.addEventListener("click", () => {
-  localStorage.removeItem("userId");
+  localStorage.removeItem("token");
+  localStorage.removeItem("username");
   window.location.href = "login.html";
 });
 
@@ -46,7 +47,11 @@ let tasks = [];
 ========================= */
 async function loadTasks(filter = "all") {
   try {
-    const res = await fetch(`${API}/tasks/${userId}`);
+    const res = await fetch(`${API}/tasks`, {
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    });
     tasks = await res.json();
 
     listBody.innerHTML = "";
@@ -189,12 +194,14 @@ addBtn.addEventListener("click", async () => {
 
   await fetch(`${API}/tasks`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
     body: JSON.stringify({
       title,
       description,
-      task_date,
-      userId
+      task_date
     })
   });
 
@@ -217,7 +224,10 @@ async function toggleStatus(taskId, currentStatus) {
 
   await fetch(`${API}/tasks/${taskId}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
     body: JSON.stringify({ status: newStatus })
   });
 
@@ -231,7 +241,10 @@ async function deleteTask(taskId) {
   if (!confirm("Are you sure you want to delete this task?")) return;
 
   await fetch(`${API}/tasks/${taskId}`, {
-    method: "DELETE"
+    method: "DELETE",
+    headers: {
+      "Authorization": "Bearer " + token
+    }
   });
 
   loadTasks();

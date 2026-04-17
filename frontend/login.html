@@ -23,7 +23,8 @@
       <p class="text-muted text-sm font-medium">Please login to access your tasks</p>
     </div>
 
-    <div class="flex flex-col gap-5">
+    <!-- LOGIN SECTION -->
+    <div id="login-section" class="flex flex-col gap-5">
       <div class="form-control">
         <label class="label mb-1">
           <span class="label-text font-semibold opacity-70">Username</span>
@@ -49,6 +50,32 @@
       <div class="text-center mt-6">
         <p class="text-sm opacity-70 mb-2">Don’t have an account?</p>
         <a href="signup.html" class="text-primary font-bold hover:underline transition-all">Create Account</a>
+      </div>
+    </div>
+
+    <!-- OTP SECTION (Hidden initially) -->
+    <div id="otp-section" class="flex flex-col gap-5 hidden">
+      <div class="text-center">
+        <p class="text-sm font-medium mb-4">We sent a 6-digit code to your email.</p>
+      </div>
+
+      <div class="form-control">
+        <label class="label mb-1">
+          <span class="label-text font-semibold opacity-70">Verification Code</span>
+        </label>
+        <input id="otp-input" type="text" placeholder="------" maxlength="6"
+          class="input input-bordered input-premium w-full text-center tracking-widest text-xl bg-opacity-20 transition-all duration-300" />
+      </div>
+
+      <p id="otp-error" class="text-red-500 text-xs font-medium text-center h-4"></p>
+
+      <button onclick="verifyOtp()" class="btn btn-premium mt-4 text-lg py-3 rounded-xl h-auto">
+        Verify & Login
+      </button>
+
+      <div class="text-center mt-6">
+        <p class="text-sm opacity-70 mb-2">Didn't receive the code?</p>
+        <button onclick="resendOtp()" class="text-primary font-bold hover:underline transition-all bg-transparent border-none cursor-pointer">Resend OTP</button>
       </div>
     </div>
   </div>

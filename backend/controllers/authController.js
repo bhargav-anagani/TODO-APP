@@ -77,7 +77,7 @@ exports.verifyOtp = async (req, res) => {
       const isValid = await otpService.verifyOtp(email, otp);
       if (!isValid) return res.status(400).json({ success: false, message: "Invalid or expired OTP" });
 
-      // OTP is valid. Proceed to issue JWT.
+      // Token is valid. Proceed to issue JWT.
       const user = await User.findOne({ email });
 
       const token = jwt.sign(
@@ -85,6 +85,10 @@ exports.verifyOtp = async (req, res) => {
           process.env.JWT_SECRET,
           { expiresIn: '7d' } 
       );
+
+      // Store token in database
+      user.tokens = user.tokens.concat({ token });
+      await user.save();
 
       // Clean up the verified OTP.
       await otpService.clearOtp(email);
@@ -124,4 +128,20 @@ exports.sendOtp = async (req, res) => {
       console.error("Send OTP failed", err);
       res.status(500).json({ success: false, message: "Failed to send OTP" });
   }
+};
+
+exports.logout = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+        // Remove the specific token used for this session
+        user.tokens = user.tokens.filter(t => t.token !== req.token);
+        await user.save();
+
+        res.json({ success: true, message: "Logged out successfully" });
+    } catch (error) {
+        console.error("Logout failed:", error);
+        res.status(500).json({ success: false, message: "Logout failed" });
+    }
 };

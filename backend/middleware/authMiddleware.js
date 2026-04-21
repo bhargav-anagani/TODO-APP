@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -11,7 +12,16 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId; // Embed user id into the request
+    
+    // Check if token exists in DB
+    const user = await User.findOne({ _id: decoded.userId, "tokens.token": token });
+    if (!user) {
+        return res.status(401).json({ success: false, message: "Session expired or invalid" });
+    }
+
+    req.userId = decoded.userId;
+    req.token = token; // Attach token for logout
+    req.user = user;
     next();
   } catch (error) {
     return res.status(401).json({ success: false, message: "Token is not valid" });

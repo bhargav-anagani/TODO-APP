@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const User = require("../models/User");
 
 const authMiddleware = async (req, res, next) => {
@@ -13,8 +14,11 @@ const authMiddleware = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
+    // Hash the token to compare with DB
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
     // Check if token exists in DB
-    const user = await User.findOne({ _id: decoded.userId, "tokens.token": token });
+    const user = await User.findOne({ _id: decoded.userId, "tokens.token": hashedToken });
     if (!user) {
         return res.status(401).json({ success: false, message: "Session expired or invalid" });
     }

@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const User = require("../models/User");
 
 exports.signup = async (req, res) => {
@@ -86,8 +87,9 @@ exports.verifyOtp = async (req, res) => {
           { expiresIn: '7d' } 
       );
 
-      // Store token in database
-      user.tokens = user.tokens.concat({ token });
+      // Store token in database (hashed for security)
+      const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+      user.tokens = user.tokens.concat({ token: hashedToken });
       await user.save();
 
       // Clean up the verified OTP.
@@ -135,8 +137,9 @@ exports.logout = async (req, res) => {
         const user = await User.findById(req.userId);
         if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-        // Remove the specific token used for this session
-        user.tokens = user.tokens.filter(t => t.token !== req.token);
+        // Remove the specific token used for this session (must hash to match DB)
+        const hashedToken = crypto.createHash("sha256").update(req.token).digest("hex");
+        user.tokens = user.tokens.filter(t => t.token !== hashedToken);
         await user.save();
 
         res.json({ success: true, message: "Logged out successfully" });

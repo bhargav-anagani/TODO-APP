@@ -1,4 +1,4 @@
-const API = "https://todo-app-xn6y.onrender.com";
+const API = "http://localhost:5000";
 
 /* SIGNUP */
 function signup() {
